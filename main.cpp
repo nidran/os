@@ -89,8 +89,6 @@ int main(int argc, const char *argv[]) {
 }
 
 void passOne() {
-//    cout << tokens.size() << endl;
-//    cout << " In pass one" << endl;
     int type = 1;
     int idx;
     int lclidx = 0;
@@ -99,31 +97,21 @@ void passOne() {
     idx = 0;
 
     while (idx < tokens.size()) {
-//        cout << " in while" << endl;
         if (type % 3 == 1) {
-//            cout << " in type1" << endl;
             lclidx = updateDefList(tokens, idx);
             idx = lclidx;
-//            ln++;
         } else if (type % 3 == 2) {
-//            cout << " in type2" << endl;
             lclidx = updateUseList(tokens, idx);
             idx = lclidx;
-//            ln++;
         } else {
-//            cout << " in type3" << endl;
             lclidx = updateInstList(tokens, idx);
             checkIfSymbOutofMod((lclidx-idx)/2);
             checkGlobalOffset( idx);
             idx = lclidx;
-//            ln++;
-
             modules++;
             printWarning1();
             warning1.clear();
-//            printWarnings();
             warnings.clear();
-
         }
         type++;
     }
@@ -136,7 +124,6 @@ void checkGlobalOffset(int idx){
 
 }
 void checkIfSymbOutofMod(int count) {
-//    cout<<"here";
     map<string, int>::iterator it;
     for ( it = symbolTable.begin(); it!= symbolTable.end(); it++){
         if (it->second > (moduleAddr + count)){
@@ -155,7 +142,6 @@ void checkIfSymbOutofMod(int count) {
 }
 
 int updateDefList(vector<string> curTokens, int start) {
-//    cout<<"in def ";
     int idx = start;
     int dc;
     int end = start + 2*dc;
@@ -172,8 +158,6 @@ int updateDefList(vector<string> curTokens, int start) {
         exit(0);
     }
     while (lc < 2 * dc + 1 && idx < end) {
-
-//        cout << "hey";
         if (isNum(curTokens.at(idx))) {
             parserError(2, idx);
         }
@@ -194,7 +178,7 @@ int updateDefList(vector<string> curTokens, int start) {
         lc += 2;
         idx += 2;
     }
-//    cout<<curTokens.at(idx);
+
     return idx;
 
 }
@@ -251,8 +235,6 @@ int updateInstList(vector<string> curTokens, int start) {
         idx += 2;
 
     }
-
-
     return idx;
 }
 
@@ -288,19 +270,17 @@ void printSymbolTable(map<string, int> symbolTable, vector<string> duplicateSym)
 }
 
 int updatePass2Use(vector<string> curTokens, int start) {
-//    cout<<"here  ";
-//    cout<<curTokens.at(start);
-//    isSymUsed.clear();
+//    pass2uc = 0;
     int idx = start;
     int uc;
     if (!isNum(curTokens.at(idx))) {
-//        cout<<"here";
         exit(0);
     }
     uc = stoi(curTokens.at(idx));
     if (uc > 16) {
         exit(0);
     }
+//    pass2uc= uc;
     idx++;
     curUseList.clear();
     int lc = 1;
@@ -308,28 +288,22 @@ int updatePass2Use(vector<string> curTokens, int start) {
         if (!isNum(curTokens.at(idx))) {
             lc++;
             string tkn = curTokens.at(idx);
-            cout<<tkn;
             allUseList.push_back(tkn);
             curUseList.push_back(tkn);
-//            isSymUsed.push_back(tkn);
-//            isSymUsed.insert(make_pair(curTokens.at(idx), false));
         } else {
             parserError(4, idx);
         }
 
         idx++;
     }
-//    cout<<"return";
+    cout<<"use liset"<<curUseList.size()<<endl;
     return idx;
 }
 
 int updateIns2Use(vector<string> curTokens, int idx) {
-//    cout << "in pa2 use  " << endl;
-
     int addC = stoi(curTokens.at(idx));
     int i = 1;
     idx++;
-//    cout << addC;
     while (i <= addC) {
         string addMode = curTokens.at(idx);
         int value = stoi(curTokens.at(idx + 1));
@@ -342,19 +316,14 @@ int updateIns2Use(vector<string> curTokens, int idx) {
 
         switch (stringCase.at(addMode)) {
             case 1 :
-//                cout<<"IN R"<<endl;
-//                cout<< opCode * 1000 + moduleAddr<<"  ";
-//                cout<<operand <<" ;
                 if (operand > (addC - 1)) {
                     memoryMap.insert(make_pair(memMap, opCode * 1000 + moduleAddr));
                     memoryMapErr.insert(make_pair(memMap, "Error: Relative address exceeds module size; zero used"));
                 } else {
-//                    cout<<"here "<<value;
                     memoryMap.insert(make_pair(memMap, value + moduleAddr));
                 }
                 break;
             case 2 :
-//                        cout << "in I" << endl;
                 if (value > 9999) {
                     memoryMap.insert(make_pair(memMap, 9999));
                     memoryMapErr.insert(make_pair(memMap, " Error: Illegal immediate value; treated as 9999"));
@@ -368,9 +337,10 @@ int updateIns2Use(vector<string> curTokens, int idx) {
                 }
                 break;
             case 3 :
-//                            cout<<"In E"<<endl;
-//                            cout<<operand<<" "<<pass2uc;
-                if (operand > (pass2uc - 1)) {
+                            cout<<"In E"<<endl;
+                            cout<<operand<<" "<<curUseList.size();
+
+                if (operand > curUseList.size()) {
                     memoryMap.insert(make_pair(memMap, value));
                     memoryMapErr.insert(make_pair(memMap, " Error: External address exceeds length of uselist; treated as immediate"));
 
@@ -385,7 +355,7 @@ int updateIns2Use(vector<string> curTokens, int idx) {
                         map<string, int>::iterator itr = symbolTable.find(curUseList[operand]);
                         memoryMap.insert(make_pair(memMap, opCode * 1000 + (itr->second)));
 //                        isSymUsed.erase(curUseList[operand]);
-                        isSymUsed.erase(find(isSymUsed.begin(),isSymUsed.end(),curUseList[operand]));
+//                        isSymUsed.erase(find(isSymUsed.begin(),isSymUsed.end(),curUseList[operand]));
 //                        map<string>::iterator ptr = isSymUsed.find(curUseList[operand]);
 //                        isSymUsed.erase(ptr);
 //                        ptr->second = true;
@@ -415,14 +385,14 @@ int updateIns2Use(vector<string> curTokens, int idx) {
         memMap++;
 
     }
-
-    moduleAddr = moduleAddr + addC;
+//    cout<<moduleAddr;
+//    moduleAddr = moduleAddr + addC;
     return idx;
 
 }
 
 void passTwo() {
-//    cout << "p2" << endl;
+    moduleAddr=0;
     int type = 1;
     int idx = 0;
     int lclidx = 0;
@@ -431,33 +401,20 @@ void passTwo() {
         if (type % 3 == 1) {
             lclidx = updateDefList(tokens, idx);
             idx = lclidx;
-//            cout<<lclidx;
-//            cout<<"def "<<idx<<" "<<endl;
+
         }
         else if (type % 3 == 2) {
-//            cout<<"use "<<idx<<" "<<endl;
             lclidx = updatePass2Use(tokens, idx);
-//            cout<<"use "<<idx<<" "<<endl;
-//            pass2uc = lclidx - idx - 1;
             idx = lclidx;
-
-//            int i = 0;
-////            cout<<"Printing use list"<<endl;
-////            while (i < curUseList.size()){
-////                cout<<curUseList.at(i)<<endl;
-////                i++;
-//
         }
         else {
-////            cout<<" p2 ins";
+//            pass2uc = curUseList.size();
+            cout<<curUseList.size();
             lclidx = updateIns2Use(tokens, idx);
             idx = lclidx;
-
             modules++;
-
-//
+            curUseList.clear();
         }
-
         type++;
     }
 
@@ -533,14 +490,11 @@ void reset() {
     warnings.clear();
 }
 void sanityCheck(int argc, string file){
-    // check if arguments count match
     if (argc != 2)
         exit(0);
-    // check if filename is greater than 0x
     string filename = file;
     if (filename.length() == 0)
         exit(0);
-    // check if file exits
     if (access(filename.c_str(), F_OK) == -1)
         exit(0);
 }

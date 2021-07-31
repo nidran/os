@@ -8,8 +8,8 @@
 #include<vector>
 #include<queue>
 #include "pte.cpp"
-#include "process.cpp"
-#include "pager.cpp"
+#include "data.cpp"
+#include "data.cpp"
 #include "helper.cpp"
 #define FOR(a, b, c) for (int(a) = (b); (a) < (c); ++(a))
 using namespace std;

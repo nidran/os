@@ -6,7 +6,7 @@
 #include <ostream>
 #include<string>
 #include <fstream>
-#include "process.cpp"
+#include "data.cpp"
 #pragma once
 using namespace std;
 

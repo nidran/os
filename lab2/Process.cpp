@@ -94,28 +94,3 @@ ostream& operator<<(ostream& os, const Process & p)
     return os;
 
 }
-
-class frame_t
-{
-public:
-    Process *process;
-    pte_t *vpage;
-    int frameNo;
-    uint32_t age;
-    int tau;
-
-public:
-    frame_t()
-    {
-        process = NULL;
-        vpage = NULL;
-        age = 0;
-        tau = 0;
-    }
-
-    void setFrame(Process *process, PTE *vpage)
-    {
-        this->process = process;
-        this->vpage = vpage;
-    }
-};
